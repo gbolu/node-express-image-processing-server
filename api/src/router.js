@@ -2,6 +2,7 @@ const { Router } = require('express');
 const router = Router();
 const Multer = require('multer');
 const path = require('path');
+const imageProcessor = require('./imageProcessor');
 
 const photoPath = path.resolve(__dirname, '../../client/photo-viewer.html');
 
@@ -29,12 +30,16 @@ const upload = Multer({
 });
 
 
-router.post('/upload', upload.single('photo'), (req, res) => {
-    if(req.fileValidationError)
-    {
+router.post('/upload', upload.single('photo'), async (req, res) => {
+    if (req.fileValidationError) {
         return res.status(400).json({
             error: req.fileValidationError
         });
+    }
+    try {
+        await imageProcessor(req.file.filename);
+    } catch (error) {
+        throw error;
     }
     return res.status(201).json({
         success: true
