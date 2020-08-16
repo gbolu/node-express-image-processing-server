@@ -13,13 +13,13 @@ const imageProcessor = (filename) => {
     const resizedDestination = uploadPathResolver('resized-' + filename);
     const monochromeDestination = uploadPathResolver('monochrome-' + filename);
 
-    const resizeWorkerFinished = false;
-    const monochromeWorkerFinished = false;
+    let resizeWorkerFinished = false;
+    let monochromeWorkerFinished = false;
 
     return new Promise((resolve, reject) => {
         if (isMainThread) {
             try {
-                const resizeWorker = Worker(pathToResizeWorker, {
+                const resizeWorker = new Worker(pathToResizeWorker, {
                     workerData: {
                         source: sourcePath,
                         destination: resizedDestination
@@ -39,7 +39,7 @@ const imageProcessor = (filename) => {
                     if (code !== 0) reject(new Error('Exited with status code ' + code));
                 });
 
-                const monochromeWorker = Worker(pathToMonochromeWorker, {
+                const monochromeWorker = new Worker(pathToMonochromeWorker, {
                     workerData: {
                         source: sourcePath,
                         destination: monochromeDestination
@@ -58,9 +58,6 @@ const imageProcessor = (filename) => {
                 monochromeWorker.on('exit', code => {
                     if (code !== 0) reject(new Error('Exited with status code ' + code));
                 });
-
-
-
             } catch (error) {
                 reject(error);
             }
