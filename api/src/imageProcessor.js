@@ -23,7 +23,14 @@ const imageProcessor = (filename) => {
                     workerData: {
                         source: sourcePath,
                         destination: resizedDestination
-                    }
+                    },
+                });
+
+                const monochromeWorker = new Worker(pathToMonochromeWorker, {
+                    workerData: {
+                        source: sourcePath,
+                        destination: monochromeDestination
+                    },
                 });
 
                 resizeWorker.on('message', message => {
@@ -39,12 +46,6 @@ const imageProcessor = (filename) => {
                     if (code !== 0) reject(new Error('Exited with status code ' + code));
                 });
 
-                const monochromeWorker = new Worker(pathToMonochromeWorker, {
-                    workerData: {
-                        source: sourcePath,
-                        destination: monochromeDestination
-                    }
-                });
 
                 monochromeWorker.on('message', message => {
                     monochromeWorkerFinished = true;
